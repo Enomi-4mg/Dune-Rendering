@@ -23,6 +23,7 @@ public:
 	void gotMessage(ofMessage msg);
 	void updateNormalMap();
 	void setupGUI();
+	void resetDuneField(bool& val);
 
 	int _X = 256;
 	int _Z = 256;
@@ -45,4 +46,5 @@ public:
 	ofParameter<float> velocityHeightParam;
 	ofParameter<float> sandTransportRateParam;
 	ofParameter<float> diffusionCoeffParam;
+	ofParameter<bool> resetDunes;
 };

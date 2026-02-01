@@ -19,8 +19,8 @@ void ofApp::setup() {
 			dunes.addVertex(vertex);
 
 			// UV座標の追加（0.0 〜 1.0 の範囲に正規化する）
-			float u = (float)i / (_X - 1);
-			float v = (float)j / (_Z - 1);
+			float v = (float)i / (_X - 1);
+			float u = (float)j / (_Z - 1);
 			dunes.addTexCoord(glm::vec2(u, v));
 		}
 	}
@@ -49,7 +49,21 @@ void ofApp::setupGUI() {
 	duneParams.add(velocityHeightParam.set("Velocity Height Factor", 1.8, 0.0, 5.0));
 	duneParams.add(sandTransportRateParam.set("Sand Transport Rate", 0.01, 0.0, 0.1));
 	duneParams.add(diffusionCoeffParam.set("Diffusion Coefficient", 0.05, 0.0, 0.2));
+	duneParams.add(resetDunes.set("Reset Dunes", false));
 	gui.add(duneParams);
+	resetDunes.addListener(this, &ofApp::resetDuneField);
+}
+void ofApp::resetDuneField(bool& val){
+	for (int i = 0; i < _X; i++) {
+		for (int j = 0; j < _Z; j++) {
+			heights[i + j * _X] = ofNoise(i * 0.05, j * 0.05) * maxHeightParam.get();
+			glm::vec3 vertex = dunes.getVertex(i + j * _X);
+			vertex.y = heights[i + j * _X];
+			dunes.setVertex(i + j * _X, vertex);
+		}
+	}
+	updateNormalMap();
+	resetDunes = false;
 }
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -149,15 +163,14 @@ void ofApp::draw() {
 	cam.begin();
 
 	shader.begin();
-	// 太陽を円を描くように動かす（夕方〜昼をシミュレート）
-	float time = ofGetElapsedTimef() * 0.5;
+	float time = 600;
 	glm::vec3 sunPos(cos(time), 0.2f, sin(time)); // 低い太陽
 
 	shader.setUniform3f("lightDir", sunPos.x, sunPos.y, sunPos.z);
 	shader.setUniformTexture("normalMap", normalMap.getTexture(), 0);
 
 	ofSetColor(255);
-	dunes.draw(); // 陰影がついた砂紋が動き出すはずです！
+	dunes.draw();
 	shader.end();
 
 	cam.end();
