@@ -1,7 +1,9 @@
 ﻿#include "ofApp.h"
+#include <cmath>
 
 //--------------------------------------------------------------
 void ofApp::setup() {
+	setupGUI();
 	ofDisableArbTex();
 	if (shader.load("shader.vert", "shader.frag")) {
 		ofLogNotice() << "Shader loaded successfully";
@@ -12,7 +14,7 @@ void ofApp::setup() {
 	heights.resize(_X * _Z);
 	for (int i = 0; i < _X; i++) {
 		for (int j = 0; j < _Z; j++) {
-			heights[i + j * _X] = ofNoise(i * 0.05, j * 0.05) * H;
+			heights[i + j * _X] = ofNoise(i * 0.05, j * 0.05) * maxHeightParam.get();
 			glm::vec3 vertex(i, heights[i + j * _X], j);
 			dunes.addVertex(vertex);
 
@@ -38,7 +40,17 @@ void ofApp::setup() {
 
 	normalMap.allocate(_X, _Z, OF_IMAGE_COLOR);
 }
-
+void ofApp::setupGUI() {
+	gui.setup();
+	gui.setName("Dune Simulation");
+	duneParams.setName("Dune Parameters");
+	duneParams.add(windVelocityParam.set("Wind Velocity", 3.3, 0.0, 10.0));
+	duneParams.add(maxHeightParam.set("Max Height", 8.7, 0.0, 20.0));
+	duneParams.add(velocityHeightParam.set("Velocity Height Factor", 1.8, 0.0, 5.0));
+	duneParams.add(sandTransportRateParam.set("Sand Transport Rate", 0.01, 0.0, 0.1));
+	duneParams.add(diffusionCoeffParam.set("Diffusion Coefficient", 0.05, 0.0, 0.2));
+	gui.add(duneParams);
+}
 //--------------------------------------------------------------
 void ofApp::update() {
 	interHeights = heights;
@@ -46,13 +58,17 @@ void ofApp::update() {
 	for (int i = 0; i < _X; i++) {
 		for (int j = 0; j < _Z; j++) {
 			int Idx = i + j * _X;
-			float L = windVelocity + v_h * heights[i + j * _X];
+			float L = windVelocityParam.get() + velocityHeightParam.get() * heights[i + j * _X];
 
-			int nextX = (i + static_cast<int>(L)) % _X;
+			int offset = static_cast<int>(std::round(L));
+			int nextX = (i + offset) % _X;
+			if (nextX < 0) {
+				nextX += _X;
+			}
 			int nextIdx = nextX + j * _X;
 
-			interHeights[Idx] -= q;
-			interHeights[nextIdx] += q;
+			interHeights[Idx] -= sandTransportRateParam.get();
+			interHeights[nextIdx] += sandTransportRateParam.get();
 		}
 	}
 	resultHeights = interHeights;
@@ -80,7 +96,7 @@ void ofApp::update() {
 			sum_NNN += interHeights[left + down * _X]; // 左下
 			sum_NNN += interHeights[right + down * _X];// 右下
 
-			float delta = D * ((1.0 / 6.0) * sum_NN + (1.0 / 12.0) * sum_NNN - interHeights[Idx]);
+			float delta = diffusionCoeffParam.get() * ((1.0 / 6.0) * sum_NN + (1.0 / 12.0) * sum_NNN - interHeights[Idx]);
 			resultHeights[Idx] = interHeights[Idx] + delta;
 		}
 	}
@@ -110,7 +126,7 @@ void ofApp::updateNormalMap() {
 			int down = (j + 1) % _Z;
 
 			// 勾配の計算
-			float nx = heights[left + j * _X] - heights[right * _X]; // X方向の勾配
+			float nx = heights[left + j * _X] - heights[right + j * _X]; // X方向の勾配
 			float nz = heights[i + up * _X] - heights[i + down * _X]; // Z方向の勾配
 			float ny = 2.0f; // ★ここを '2.0' にすると、グリッド間隔(1.0)と計算が合います（重要）
 
@@ -145,6 +161,7 @@ void ofApp::draw() {
 	shader.end();
 
 	cam.end();
+	gui.draw();
 }
 
 //--------------------------------------------------------------

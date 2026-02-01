@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp {
 
@@ -21,17 +22,13 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 	void updateNormalMap();
+	void setupGUI();
 
 	int _X = 256;
 	int _Z = 256;
 	std::vector<float> heights;
 	std::vector <float> interHeights;
 	std::vector <float> resultHeights;
-	float H = 8.7;
-	float v_h = 1.8;
-	float q = 0.01;
-	float windVelocity = 3.3;
-	float D = 0.05;
 
 	ofMesh dunes;
 	glm::vec3 normal;
@@ -40,4 +37,12 @@ public:
 	ofShader shader;
 
 	ofEasyCam cam;
+
+	ofxPanel gui;
+	ofParameterGroup duneParams;
+	ofParameter<float> windVelocityParam;
+	ofParameter<float> maxHeightParam;
+	ofParameter<float> velocityHeightParam;
+	ofParameter<float> sandTransportRateParam;
+	ofParameter<float> diffusionCoeffParam;
 };
