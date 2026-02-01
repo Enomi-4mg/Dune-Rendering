@@ -36,6 +36,19 @@ addons.make            # openFrameworksアドオン
 - openFrameworks v0.12.1
 - Windows x64プラットフォーム
 
+## projectGeneratorを使用したセットアップ
+
+このプロジェクトはopenFrameworksのprojectGeneratorを使用して作成・設定できます：
+
+1. openFrameworksのインストールフォルダからprojectGeneratorを起動
+2. プロジェクトパスをこのディレクトリに設定
+3. プロジェクト名を`Dune_Rendering`に指定
+4. 必要なアドオンを追加`ofxGui`
+5. プラットフォーム（Visual Studio）を選択
+6. 「Generate」をクリックしてプロジェクトファイルを作成/更新
+
+projectGeneratorは必要なVisual Studioのソリューションファイルとプロジェクトファイルを自動的に生成します。
+
 ## ビルド方法
 
 1. Visual Studioで`Dune_Rendering.sln`を開く
