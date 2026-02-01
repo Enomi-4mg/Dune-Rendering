@@ -1,6 +1,7 @@
 # Visual Studio の一時ファイル
 .vs/
-[Bb]in/
+[Bb]in/*
+![Bb]in/data/
 [Oo]bj/
 *.user
 *.suo
@@ -48,12 +49,9 @@
 *.dwo
 
 # openFrameworks specific
-*.vcxproj.filters
 *.aps
 *.rc
-*.sln
 dll/
-addons/
 
 # OS files
 .DS_Store
