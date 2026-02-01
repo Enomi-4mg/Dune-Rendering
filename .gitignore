@@ -46,3 +46,15 @@
 
 # debug information files
 *.dwo
+
+# openFrameworks specific
+*.vcxproj.filters
+*.aps
+*.rc
+*.sln
+dll/
+addons/
+
+# OS files
+.DS_Store
+Thumbs.db
